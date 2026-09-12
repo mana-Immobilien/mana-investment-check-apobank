@@ -848,6 +848,27 @@ button:disabled{
 </div>
 
 <script>
+const FINAL_PDF_TITLE = 'MANA Investment Check und Leadbogen MANA ApoBank';
+
+function setFinalPdfTitle(){
+  document.title = FINAL_PDF_TITLE;
+}
+
+function printFinalPdf(){
+  setFinalPdfTitle();
+  // Browser erhält einen kurzen Render-Zyklus, bevor der Druckdialog geöffnet wird.
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      setFinalPdfTitle();
+      window.print();
+    }, 50);
+  });
+}
+
+window.addEventListener('beforeprint', setFinalPdfTitle);
+document.addEventListener('DOMContentLoaded', setFinalPdfTitle);
+setFinalPdfTitle();
+
 const form = document.getElementById('checkForm');
 
 function answeredCount(){
@@ -1079,7 +1100,7 @@ function printSummary(){
   document.getElementById('printConsulting').textContent='Ja';
   syncLeadFromCheck();
   syncLeadPrint();
-  window.print();
+  printFinalPdf();
 }
 
 
@@ -1592,7 +1613,7 @@ function printSummaryAndUnlock(){
   confirm.disabled = false;
   document.getElementById('sendGate').classList.remove('locked');
 
-  window.print();
+  printFinalPdf();
 }
 
 document.getElementById('pdfReadyConfirm').addEventListener('change', function(){
