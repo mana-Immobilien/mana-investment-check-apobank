@@ -1,0 +1,1814 @@
+<!doctype html>
+<html lang="de">
+<head>
+
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';">
+<meta name="robots" content="noindex,nofollow,noarchive">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MANA Investment-Check – interaktiver Prototyp</title>
+<style>
+:root{
+  --navy:#234A63; --green:#467D4C; --blue:#EAF2F6; --light:#F6F7F8;
+  --sand:#F5F0E4; --text:#25313A; --muted:#6B747A; --line:#D8E0E5;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:#eef2f4; color:var(--text);
+  font-family:Arial,Helvetica,sans-serif; line-height:1.4;
+}
+.page{
+  max-width:940px; margin:28px auto; background:white; padding:42px 54px;
+  box-shadow:0 3px 18px rgba(0,0,0,.08); border-radius:4px;
+}
+.brand{color:var(--navy); font-weight:700; font-size:28px; letter-spacing:.02em}
+h1{font-size:30px; margin:4px 0 4px}
+.subtitle{color:var(--green); font-weight:700; font-size:18px; margin-bottom:24px}
+.intro{
+  background:var(--blue); border-left:5px solid var(--navy);
+  padding:18px 20px; margin:20px 0 28px;
+}
+.progress-wrap{margin:12px 0 28px}
+.progress-label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
+.progress{height:8px;background:#e5e9ec;border-radius:6px;overflow:hidden}
+.progress > div{height:100%;width:0;background:var(--green);transition:width .2s}
+.question{
+  border-top:1px solid var(--line); padding:22px 0 18px;
+}
+.question:first-of-type{border-top:0}
+.qtitle{font-weight:700;color:var(--navy);font-size:17px;margin-bottom:10px}
+.note{font-size:13px;color:var(--muted);margin:-3px 0 10px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px}
+.option{
+  display:flex;align-items:flex-start;gap:9px;padding:9px 10px;
+  border:1px solid var(--line);border-radius:5px;background:#fff;
+}
+.option:hover{background:var(--light)}
+.option input{margin-top:2px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 8px}
+button{
+  border:0;border-radius:5px;padding:13px 20px;font-weight:700;font-size:15px;cursor:pointer
+}
+.primary{background:var(--navy);color:white}
+.secondary{background:#e8ecef;color:var(--text)}
+.result{display:none;margin-top:32px;border-top:4px solid var(--navy);padding-top:24px}
+.result-head{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.badge{padding:7px 11px;border-radius:4px;font-weight:700;font-size:14px}
+.badge.a{background:#eaf3e8;color:#315f36}
+.badge.b{background:#f5f0e4;color:#725e27}
+.badge.c{background:#eeeeee;color:#555}
+.badge.timing{background:var(--blue);color:var(--navy)}
+.result h2{margin:0;color:var(--navy)}
+.summary{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;
+}
+.card{padding:15px 16px;border:1px solid var(--line);border-radius:5px;background:var(--light)}
+.card strong{display:block;color:var(--navy);margin-bottom:5px}
+.cta{background:var(--blue);padding:18px 20px;margin-top:20px;border-radius:5px}
+.cta label{display:flex;gap:10px;font-weight:700}
+.small{font-size:12px;color:var(--muted);margin-top:18px}
+.warning{color:#8a3f34;font-weight:700;display:none;margin:8px 0}
+@media(max-width:700px){
+  .page{margin:0;padding:25px 18px}
+  .options,.summary{grid-template-columns:1fr}
+}
+@media print{
+  body{background:white}
+  .page{box-shadow:none;margin:0;max-width:none;padding:20mm}
+  .actions{display:none}
+}
+
+.choice-input{
+  position:absolute !important;
+  opacity:0 !important;
+  width:1px !important;
+  height:1px !important;
+  pointer-events:none;
+}
+.choice-circle{
+  width:18px;
+  height:18px;
+  min-width:18px;
+  border:2px solid #7c8a93;
+  border-radius:999px;
+  background:#fff;
+  display:inline-block;
+  position:relative;
+  margin-top:1px;
+}
+.choice-input:checked + .choice-circle{
+  border-color:var(--navy);
+}
+.choice-input:checked + .choice-circle::after{
+  content:"";
+  position:absolute;
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  background:var(--navy);
+  top:2px;
+  left:2px;
+}
+
+
+.return-section{
+  display:none;
+  margin-top:28px;
+  border-top:1px solid var(--line);
+  padding-top:24px;
+}
+.answer-table{
+  width:100%;
+  border-collapse:collapse;
+  margin:14px 0 18px;
+}
+.answer-table th,
+.answer-table td{
+  border-bottom:1px solid var(--line);
+  padding:9px 8px;
+  text-align:left;
+  vertical-align:top;
+  font-size:13px;
+}
+.answer-table th{
+  width:34%;
+  color:var(--navy);
+  font-weight:700;
+}
+.rm-box{
+  background:var(--light);
+  padding:16px 18px;
+  border-radius:5px;
+  margin:18px 0;
+}
+.rm-box input[type="email"]{
+  width:100%;
+  padding:10px 11px;
+  border:1px solid var(--line);
+  border-radius:4px;
+  font-size:14px;
+  margin-top:7px;
+}
+.return-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.advisory-focus{
+  background:var(--sand);
+  border-left:4px solid var(--green);
+  padding:14px 16px;
+  margin:16px 0;
+}
+#printSheet{
+  display:none;
+}
+@media print{
+  body *{visibility:hidden !important}
+  #printSheet, #printSheet *{visibility:visible !important}
+  #printSheet{
+    display:block !important;
+    position:absolute;
+    left:0; top:0; width:100%;
+    padding:16mm;
+    background:#fff;
+  }
+  #printSheet table{
+    width:100%;
+    border-collapse:collapse;
+  }
+  .print-page-break{
+    page-break-before:always;
+    break-before:page;
+  }
+  .lead-print-box{
+    border:1px solid #bbb;
+    padding:10px 12px;
+    margin:8px 0 12px;
+  }
+  .lead-print-grid{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:8px;
+  }
+  .lead-print-grid td{
+    width:50%;
+    border:1px solid #ccc;
+    padding:7px 8px;
+    vertical-align:top;
+    font-size:10pt;
+  }
+  .lead-print-section{
+    font-weight:700;
+    color:#234A63;
+    margin-top:10px;
+    margin-bottom:4px;
+  }
+  #printSheet th,#printSheet td{
+    border-bottom:1px solid #ccc;
+    padding:7px 5px;
+    text-align:left;
+    vertical-align:top;
+    font-size:11pt;
+  }
+  #printSheet th{width:34%;color:#234A63}
+}
+
+
+.lead-form{
+  margin-top:22px;
+  border:1px solid var(--line);
+  border-radius:5px;
+  padding:18px 20px;
+  background:#fff;
+}
+.lead-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px 16px;
+  margin-top:12px;
+}
+.lead-grid label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  color:var(--navy);
+}
+.lead-grid input{
+  width:100%;
+  margin-top:5px;
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:4px;
+  font-size:14px;
+}
+.lead-consent{
+  margin-top:14px;
+  padding:12px 14px;
+  background:var(--blue);
+  border-radius:4px;
+  font-size:13px;
+}
+.lead-consent label{
+  display:flex;
+  gap:9px;
+  align-items:flex-start;
+}
+@media(max-width:700px){.lead-grid{grid-template-columns:1fr}}
+
+
+.signature-wrap{
+  margin-top:14px;
+}
+.signature-pad{
+  border:1.5px solid #9aa6ad;
+  border-radius:5px;
+  background:#fff;
+  width:100%;
+  height:160px;
+  touch-action:none;
+  display:block;
+}
+.signature-actions{
+  display:flex;
+  gap:10px;
+  margin-top:8px;
+}
+.signature-hint{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:5px;
+}
+.print-signature{
+  max-width:280px;
+  max-height:90px;
+  border-bottom:1px solid #777;
+  padding-bottom:3px;
+}
+
+
+@page{ size:A4 portrait; margin:7mm; }
+@media print{
+  html,body{margin:0!important;padding:0!important;background:#fff!important;}
+  body > .page{display:none!important;}
+  #printSheet{display:block!important;position:static!important;width:auto!important;padding:0!important;margin:0!important;}
+  #printSheet .pdf-page{page-break-after:always;break-after:page;min-height:277mm;box-sizing:border-box;}
+  #printSheet .pdf-page:last-child{page-break-after:auto;break-after:auto;}
+}
+.lead-original{font-family:Arial,Helvetica,sans-serif;color:#111;font-size:8.35pt;line-height:1.08;}
+.lead-original .toprow{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4mm;}
+.lead-original .emailline{font-size:7.7pt;margin-bottom:2mm;}
+.lead-original .emailline a{color:#2d6f99;text-decoration:underline;}
+.lead-original .lead-title{font-weight:700;font-size:12.3pt;text-decoration:underline;color:#243f5a;margin-bottom:.5mm;}
+.lead-original .lead-sub{font-weight:700;font-size:9pt;color:#243f5a;}
+.lead-original .apo-logo{width:61mm;max-height:18mm;object-fit:contain;object-position:right top;}
+.lead-original .section-title{font-weight:700;font-size:8.7pt;margin:3.2mm 0 1.7mm;}
+.lead-original .line-row{display:grid;grid-template-columns:37mm 1fr;align-items:end;column-gap:2mm;margin:1.35mm 0;}
+.lead-original .line-row .label{white-space:nowrap;}
+.lead-original .fieldline{border-bottom:.75px solid #111;min-height:3.8mm;padding:0 .8mm .35mm;display:flex;align-items:flex-end;}
+.lead-original .split3{display:grid;grid-template-columns:26mm 1fr 1fr;gap:2mm;width:100%;}
+.lead-original .split4{display:grid;grid-template-columns:1.15fr .85fr .8fr .9fr;gap:2mm;width:100%;}
+.lead-original .tinylabel{font-size:5.6pt;margin-top:.35mm;color:#333;}
+.lead-original .options-row{display:flex;align-items:center;gap:6mm;flex-wrap:wrap;margin:1.2mm 0 1.8mm;}
+.lead-original .print-box{width:4.6mm;height:4.6mm;border:.8px solid #111;display:inline-flex;align-items:center;justify-content:center;margin-right:1mm;vertical-align:middle;font-size:7.2pt;font-weight:700;}
+.lead-original .longline{border-bottom:.75px solid #111;display:inline-block;min-width:78mm;height:3.8mm;vertical-align:bottom;}
+.lead-original .means{display:grid;grid-template-columns:auto 34mm auto 1fr;gap:1.6mm;align-items:end;margin-top:1mm;}
+.lead-original .remarks{border-bottom:.75px solid #111;min-height:5.5mm;padding-bottom:.5mm;}
+.lead-original .consent{font-size:6.45pt;line-height:1.24;text-align:justify;margin-top:1mm;}
+.lead-original .signatures{display:grid;grid-template-columns:1fr 1fr;gap:10mm;margin-top:6mm;}
+.lead-original .sigline{border-bottom:.75px solid #111;height:10mm;position:relative;display:flex;align-items:flex-end;justify-content:center;}
+.lead-original .sigline img{max-width:70mm;max-height:9mm;object-fit:contain;}
+.lead-original .sigcaption{font-size:5.7pt;margin-top:.5mm;}
+.lead-original .rm-empty{color:#666;font-style:italic;font-size:6.6pt;}
+
+
+.send-gate{
+  margin-top:18px;
+  padding:16px 18px;
+  border:1px solid var(--line);
+  border-radius:5px;
+  background:#fff;
+}
+.send-gate.locked{
+  opacity:.72;
+}
+.send-warning{
+  margin-top:10px;
+  padding:10px 12px;
+  background:#fff4e5;
+  border-left:4px solid #c58a25;
+  font-size:13px;
+}
+.confirm-attach{
+  margin-top:12px;
+  padding:12px 14px;
+  background:var(--blue);
+  border-radius:4px;
+}
+.confirm-attach label{
+  display:flex;
+  gap:9px;
+  align-items:flex-start;
+  font-weight:700;
+}
+button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+
+.consulting-requirement{
+  display:none;
+  margin-top:14px;
+  padding:14px 16px;
+  background:#fff4e5;
+  border-left:5px solid #c58a25;
+  border-radius:4px;
+  font-size:13px;
+}
+.consulting-requirement strong{
+  color:#7a5718;
+}
+.lead-form.required-active{
+  border:2px solid var(--green);
+  background:#fbfdfb;
+}
+.req-star{
+  color:#a33b2f;
+  font-weight:700;
+}
+.field-error input,
+.field-error textarea{
+  border-color:#b44334 !important;
+  background:#fff8f6 !important;
+}
+.field-error-note{
+  display:none;
+  color:#a33b2f;
+  font-size:12px;
+  margin-top:4px;
+}
+.field-error .field-error-note{
+  display:block;
+}
+.lead-status{
+  display:none;
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:4px;
+  font-size:13px;
+}
+.lead-status.ok{
+  display:block;
+  background:#eaf3e8;
+  border-left:4px solid var(--green);
+}
+.lead-status.missing{
+  display:block;
+  background:#fff4e5;
+  border-left:4px solid #c58a25;
+}
+
+
+@media print{
+  /* HTML-Eingabemaske bleibt unverändert; nur die PDF-Seite 2 wird schmaler. */
+  #printSheet #pdfPage2{
+    width:172mm !important;
+    max-width:172mm !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+    page-break-inside:avoid !important;
+    break-inside:avoid-page !important;
+  }
+
+  #printSheet #pdfPage2.lead-original{
+    font-size:8.05pt !important;
+    line-height:1.05 !important;
+  }
+
+  #printSheet #pdfPage2 .toprow{ margin-bottom:3mm !important; }
+  #printSheet #pdfPage2 .apo-logo{ width:56mm !important; max-height:16mm !important; }
+  #printSheet #pdfPage2 .section-title{ margin:2.5mm 0 1.25mm !important; font-size:8.4pt !important; }
+  #printSheet #pdfPage2 .line-row{ grid-template-columns:34mm 1fr !important; margin:1mm 0 !important; }
+  #printSheet #pdfPage2 .fieldline{ min-height:3.35mm !important; }
+  #printSheet #pdfPage2 .options-row{ gap:4.5mm !important; margin:.9mm 0 1.35mm !important; }
+  #printSheet #pdfPage2 .print-box{ width:4.1mm !important; height:4.1mm !important; }
+  #printSheet #pdfPage2 .longline{ min-width:70mm !important; height:3.4mm !important; }
+  #printSheet #pdfPage2 .remarks{ min-height:4.2mm !important; }
+  #printSheet #pdfPage2 .consent{ font-size:7.2pt !important; line-height:1.1 !important; }
+}
+
+
+.action-error{
+  border:2px solid #b44334 !important;
+  background:#fff8f6 !important;
+  border-radius:5px;
+  padding:10px 12px;
+}
+.signature-wrap.action-error{
+  padding:10px 12px;
+}
+.action-error-label{
+  color:#a33b2f !important;
+}
+
+
+.validation-message{
+  display:none;
+  margin-top:4px;
+  font-size:11.5px;
+  color:#a33b2f;
+  line-height:1.25;
+}
+.validation-error{
+  border-color:#b44334 !important;
+  background:#fff8f6 !important;
+}
+.validation-warning{
+  border-color:#c58a25 !important;
+  background:#fffaf1 !important;
+}
+.validation-message.show{display:block;}
+
+
+.print-box.checked{
+  position:relative;
+}
+.print-box.checked::after{
+  content:"×";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-56%);
+  font-size:10pt;
+  font-weight:700;
+  line-height:1;
+  color:#111;
+}
+
+
+.privacy-box{
+  background:#f4f7f8;
+  border-left:4px solid var(--green);
+  padding:14px 16px;
+  margin:16px 0 22px;
+  font-size:13px;
+  line-height:1.4;
+}
+
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="brand">MANA</div>
+  <h1>Investment-Check</h1>
+  <div class="subtitle">Passt eine Kapitalanlageimmobilie zu meiner persönlichen Vermögensstrategie?</div>
+
+  <div class="intro">
+    <strong>Eine erste Orientierung in ca. 3 Minuten</strong><br>
+    Mit diesem kurzen Check können Sie einschätzen, ob eine Kapitalanlageimmobilie aufgrund Ihrer persönlichen Einkommens-, Steuer- und Vermögenssituation grundsätzlich für Sie interessant sein könnte. Die Auswertung dient einer ersten Orientierung und ersetzt keine individuelle Beratung.
+  </div>
+
+  
+  <div class="privacy-box">
+    <strong>Datenschutzhinweis</strong><br>
+    Ihre Eingaben werden ausschließlich lokal in Ihrem Browser verarbeitet. Diese Webseite speichert Ihre Angaben nicht auf einem Server und überträgt sie nicht an den Betreiber der Webseite. Erst wenn Sie das erzeugte PDF selbst per E-Mail versenden, verlassen die darin enthaltenen Daten Ihr Endgerät.
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Fortschritt</span><span id="progressText">0 von 10 beantwortet</span></div>
+    <div class="progress"><div id="progressBar"></div></div>
+  </div>
+
+  <form id="checkForm" autocomplete="off" onsubmit="return false;">
+    <div class="question">
+      <div class="qtitle">1. Wie alt sind Sie?</div>
+      <div class="options">
+        <label class="option"><input class="choice-input" type="radio" name="q1" value="1"><span class="choice-circle" aria-hidden="true"></span><span>unter 30 Jahre</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q1" value="4"><span class="choice-circle" aria-hidden="true"></span><span>30–39 Jahre</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q1" value="5"><span class="choice-circle" aria-hidden="true"></span><span>40–49 Jahre</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q1" value="4"><span class="choice-circle" aria-hidden="true"></span><span>50–57 Jahre</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q1" value="2"><span class="choice-circle" aria-hidden="true"></span><span>58 Jahre oder älter</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="qtitle">2. Wie sind Sie derzeit beruflich tätig?</div>
+      <div class="options">
+        <label class="option"><input class="choice-input" type="radio" name="q2" value="4"><span class="choice-circle" aria-hidden="true"></span><span>angestellt</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q2" value="5"><span class="choice-circle" aria-hidden="true"></span><span>niedergelassen / selbstständig</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q2" value="5"><span class="choice-circle" aria-hidden="true"></span><span>Praxis- / MVZ-Gesellschafter/in</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q2" value="5"><span class="choice-circle" aria-hidden="true"></span><span>Apotheker/in</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q2" value="3"><span class="choice-circle" aria-hidden="true"></span><span>sonstiger Heilberuf</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="qtitle">3. Wie hoch ist Ihr ungefähres jährliches Bruttoeinkommen?</div>
+      <div class="options">
+        <label class="option"><input class="choice-input" type="radio" name="q3" value="1"><span class="choice-circle" aria-hidden="true"></span><span>unter 100.000 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q3" value="3"><span class="choice-circle" aria-hidden="true"></span><span>100.000–150.000 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q3" value="4"><span class="choice-circle" aria-hidden="true"></span><span>150.000–200.000 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q3" value="5"><span class="choice-circle" aria-hidden="true"></span><span>200.000–300.000 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q3" value="5"><span class="choice-circle" aria-hidden="true"></span><span>über 300.000 €</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="qtitle">4. Wie empfinden Sie Ihre derzeitige Steuerbelastung?</div>
+      <div class="options">
+        <label class="option"><input class="choice-input" type="radio" name="q4" value="1"><span class="choice-circle" aria-hidden="true"></span><span>gering</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q4" value="2"><span class="choice-circle" aria-hidden="true"></span><span>spürbar</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q4" value="4"><span class="choice-circle" aria-hidden="true"></span><span>hoch</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q4" value="5"><span class="choice-circle" aria-hidden="true"></span><span>sehr hoch</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q4" value="5"><span class="choice-circle" aria-hidden="true"></span><span>ich möchte meine Steuerbelastung gezielt optimieren</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="qtitle">5. Welche Größenordnung könnten Sie sich grundsätzlich als Eigenkapitaleinsatz vorstellen?</div>
+      <div class="note">Die Angabe bedeutet nicht, dass dieser Betrag tatsächlich eingesetzt werden muss.</div>
+      <div class="options">
+        <label class="option"><input class="choice-input" type="radio" name="q5" value="3"><span class="choice-circle" aria-hidden="true"></span><span>kein bzw. möglichst geringer Eigenkapitaleinsatz</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q5" value="3"><span class="choice-circle" aria-hidden="true"></span><span>bis 25.000 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q5" value="4"><span class="choice-circle" aria-hidden="true"></span><span>25.000–50.000 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q5" value="5"><span class="choice-circle" aria-hidden="true"></span><span>über 50.000 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q5" value="2"><span class="choice-circle" aria-hidden="true"></span><span>noch offen</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="qtitle">6. Welcher monatliche Betrag steht Ihnen nach Ihren laufenden Verpflichtungen grundsätzlich für weiteren Vermögensaufbau zur Verfügung?</div>
+      <div class="options">
+        <label class="option"><input class="choice-input" type="radio" name="q6" value="1"><span class="choice-circle" aria-hidden="true"></span><span>unter 500 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q6" value="2"><span class="choice-circle" aria-hidden="true"></span><span>500–1.000 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q6" value="3"><span class="choice-circle" aria-hidden="true"></span><span>1.000–2.000 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q6" value="4"><span class="choice-circle" aria-hidden="true"></span><span>2.000–3.000 €</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q6" value="5"><span class="choice-circle" aria-hidden="true"></span><span>über 3.000 €</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="qtitle">7. Wie sieht Ihr bisheriges Immobilienvermögen aus?</div>
+      <div class="note">Bitte wählen Sie bis zu zwei Angaben aus.</div><div class="options">
+        <label class="option"><input class="choice-input" type="checkbox" name="q7" value="4"><span class="choice-circle" aria-hidden="true"></span><span>selbstgenutzte Immobilie</span></label>
+        <label class="option"><input class="choice-input" type="checkbox" name="q7" value="5"><span class="choice-circle" aria-hidden="true"></span><span>keine Kapitalanlageimmobilie</span></label>
+        <label class="option"><input class="choice-input" type="checkbox" name="q7" value="5"><span class="choice-circle" aria-hidden="true"></span><span>1 Kapitalanlageimmobilie</span></label>
+        <label class="option"><input class="choice-input" type="checkbox" name="q7" value="4"><span class="choice-circle" aria-hidden="true"></span><span>2–3 Kapitalanlageimmobilien</span></label>
+        <label class="option"><input class="choice-input" type="checkbox" name="q7" value="3"><span class="choice-circle" aria-hidden="true"></span><span>mehr als 3 Kapitalanlageimmobilien</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="qtitle">8. Was möchten Sie mit einer möglichen Immobilieninvestition hauptsächlich erreichen?</div>
+      <div class="note">Bitte wählen Sie maximal zwei Ziele aus.</div>
+      <div class="options">
+        <label class="option"><input class="choice-input" type="checkbox" name="q8" value="4"><span class="choice-circle" aria-hidden="true"></span><span>langfristig Vermögen aufbauen</span></label>
+        <label class="option"><input class="choice-input" type="checkbox" name="q8" value="5"><span class="choice-circle" aria-hidden="true"></span><span>Steuerbelastung reduzieren</span></label>
+        <label class="option"><input class="choice-input" type="checkbox" name="q8" value="4"><span class="choice-circle" aria-hidden="true"></span><span>zusätzliche Altersvorsorge aufbauen</span></label>
+        <label class="option"><input class="choice-input" type="checkbox" name="q8" value="4"><span class="choice-circle" aria-hidden="true"></span><span>Vermögen breiter aufstellen</span></label>
+        <label class="option"><input class="choice-input" type="checkbox" name="q8" value="3"><span class="choice-circle" aria-hidden="true"></span><span>vorhandene Liquidität sinnvoll einsetzen</span></label>
+        <label class="option"><input class="choice-input" type="checkbox" name="q8" value="4"><span class="choice-circle" aria-hidden="true"></span><span>zusätzliches Immobilienvermögen aufbauen</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="qtitle">9. Welchen Anlagehorizont können Sie sich grundsätzlich vorstellen?</div>
+      <div class="options">
+        <label class="option"><input class="choice-input" type="radio" name="q9" value="0"><span class="choice-circle" aria-hidden="true"></span><span>unter 5 Jahre</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q9" value="2"><span class="choice-circle" aria-hidden="true"></span><span>5–10 Jahre</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q9" value="4"><span class="choice-circle" aria-hidden="true"></span><span>10–15 Jahre</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q9" value="5"><span class="choice-circle" aria-hidden="true"></span><span>15 Jahre oder länger</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q9" value="2"><span class="choice-circle" aria-hidden="true"></span><span>noch offen</span></label>
+      </div>
+    </div>
+
+    <div class="question">
+      <div class="qtitle">10. Wie konkret ist Ihr Interesse aktuell?</div>
+      <div class="options">
+        <label class="option"><input class="choice-input" type="radio" name="q10" value="3"><span class="choice-circle" aria-hidden="true"></span><span>Ich möchte zunächst nur wissen, ob das Konzept grundsätzlich zu mir passt.</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q10" value="2"><span class="choice-circle" aria-hidden="true"></span><span>Ich möchte das Thema in den kommenden Monaten näher prüfen.</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q10" value="1"><span class="choice-circle" aria-hidden="true"></span><span>Ich möchte mich zeitnah beraten lassen.</span></label>
+        <label class="option"><input class="choice-input" type="radio" name="q10" value="1"><span class="choice-circle" aria-hidden="true"></span><span>Ich beschäftige mich bereits konkret mit einer Kapitalanlageimmobilie.</span></label>
+      </div>
+    </div>
+
+    <div class="warning" id="warning">Bitte beantworten Sie alle 10 Fragen. Bei den Fragen 7 und 8 können Sie jeweils bis zu zwei Antworten auswählen.</div>
+    <div class="actions">
+      <button type="button" class="primary" onclick="evaluateForm()">Investment-Check auswerten</button>
+      <button type="button" class="secondary" onclick="clearAllData()">Alle Eingaben löschen</button>
+      <button type="button" class="secondary" onclick="window.print()">Ergebnis drucken / als PDF speichern</button>
+    </div>
+  </form>
+
+  <section class="result" id="result">
+    <div class="result-head">
+      <h2 id="resultTitle">Ihre Auswertung</h2>
+      <span class="badge" id="potentialBadge"></span>
+      <span class="badge timing" id="timingBadge"></span>
+    </div>
+
+    <p id="resultText"></p>
+
+    <div class="summary">
+      <div class="card"><strong>Wirtschaftliche Ausgangssituation</strong><span id="econSummary"></span></div>
+      <div class="card"><strong>Steuer- und Vermögenspotenzial</strong><span id="taxSummary"></span></div>
+      <div class="card"><strong>Anlagehorizont</strong><span id="horizonSummary"></span></div>
+      <div class="card"><strong>Aktuelle Handlungsbereitschaft</strong><span id="timingSummary"></span></div>
+    </div>
+
+    
+    <div class="cta">
+      <label><input type="checkbox" id="beratung"> Ja, ich möchte meine persönliche Situation mit einem MANA Immobilien-Spezialisten näher analysieren lassen.</label>
+      <div class="small"><strong>Hinweis:</strong> Für die persönliche Beratung durch einen MANA Immobilien-Spezialisten ist ein vollständig ausgefüllter und unterschriebener Leadbogen zwingend erforderlich.</div>
+    </div>
+    <div class="consulting-requirement" id="consultingRequirement">
+      <strong>Wichtig: Persönliche MANA-Beratung nur mit vollständig ausgefülltem Leadbogen.</strong><br>
+      Wenn Sie Ihre persönliche Situation durch einen MANA Immobilien-Spezialisten analysieren lassen möchten, ist es zwingend erforderlich, den Leadbogen vollständig auszufüllen, die Einverständniserklärung zu bestätigen und digital zu unterschreiben. Ohne diese Leadfreigabe kann Ihr Relationship Manager den Beratungsauftrag nicht an MANA weitergeben.
+    </div>
+
+    <div class="return-section" id="returnSection">
+      <h2 style="font-size:20px;margin-bottom:6px;">Zusammenfassung für Ihren Relationship Manager</h2>
+      <p style="margin-top:0;">Diese Übersicht enthält Ihr Ergebnis und alle von Ihnen gemachten Angaben. Sie können sie ausdrucken bzw. als PDF speichern und zusammen mit dem unterschriebenen Leadbogen an Ihren Relationship Manager zurücksenden.</p>
+
+      <div class="advisory-focus">
+        <strong>Beratungsschwerpunkt</strong><br>
+        <span id="advisoryFocus"></span>
+      </div>
+
+      <table class="answer-table" id="answerTable">
+        <tbody></tbody>
+      </table>
+
+      
+      
+      <div class="lead-form" id="leadForm">
+        <strong style="color:var(--navy);font-size:16px;">Leadbogen für Immobilien – apoBank an MANA</strong>
+        <div class="small">Inhaltlich am bestehenden Leadbogen orientiert. Angaben aus dem Investment-Check werden – soweit möglich – automatisch übernommen. Die finale bankseitige Freigabe bleibt erforderlich.</div>
+        <div class="small" style="margin-top:6px;"><span class="req-star">*</span> Pflichtfeld bei gewünschter persönlicher Beratung.</div>
+
+        <div style="margin-top:16px;font-weight:700;color:var(--navy);">1. Allgemeine Daten</div>
+        <div class="lead-grid">
+          <label>Titel
+            <input type="text" id="leadTitle" placeholder="Titel">
+          </label>
+          <label>Vorname <span class="req-star">*</span>
+            <input type="text" id="leadFirstName" placeholder="Vorname">
+          </label>
+          <label>Nachname <span class="req-star">*</span>
+            <input type="text" id="leadLastName" placeholder="Nachname">
+          </label>
+          <label>Straße <span class="req-star">*</span>
+            <input type="text" id="leadStreet" placeholder="Straße">
+          </label>
+          <label>Hausnummer <span class="req-star">*</span>
+            <input type="text" id="leadHouseNo" placeholder="Hausnummer">
+          </label>
+          <label>Postleitzahl <span class="req-star">*</span>
+            <input type="text" id="leadPostalCode" inputmode="numeric" maxlength="5" placeholder="PLZ">
+          </label>
+          <label>Ort <span class="req-star">*</span>
+            <input type="text" id="leadCity" placeholder="Ort">
+          </label>
+          <label>Präferenz Telefontermin
+            <input type="text" id="leadPhonePreference" placeholder="z. B. vormittags / nachmittags">
+          </label>
+          <label>Stammnummer
+            <input type="text" id="leadCustomerNo" placeholder="Stammnummer">
+          </label>
+          <label>Geburtsdatum <span class="req-star">*</span>
+            <input type="date" id="leadBirthDate">
+          </label>
+          <label>Berufsgruppe / Fachrichtung <span class="req-star">*</span>
+            <input type="text" id="leadProfession" placeholder="Berufsgruppe / Fachrichtung">
+          </label>
+          <label>Telefon <span class="req-star">*</span>
+            <input type="text" id="leadPhone" placeholder="Telefonnummer">
+          </label>
+          <label>E-Mail-Adresse <span class="req-star">*</span>
+            <input type="email" id="leadCustomerEmail" placeholder="E-Mail-Adresse">
+          </label>
+        </div>
+
+        <div id="leadReasonLabel" style="margin-top:18px;font-weight:700;color:var(--navy);">2. Gesprächsanlass <span class="req-star">*</span></div>
+        <div class="options" id="leadReasonBlock" style="margin-top:8px;">
+          <label class="option"><input class="choice-input" type="radio" name="leadReason" value="apoPur-Grundsatzgespräch"><span class="choice-circle"></span><span>apoPur-Grundsatzgespräch</span></label>
+          <label class="option"><input class="choice-input" type="radio" name="leadReason" value="Anlagegespräch" checked><span class="choice-circle"></span><span>Anlagegespräch</span></label>
+          <label class="option"><input class="choice-input" type="radio" name="leadReason" value="Vorsorgegespräch"><span class="choice-circle"></span><span>Vorsorgegespräch</span></label>
+          <label class="option"><input class="choice-input" type="radio" name="leadReason" value="Sonstiges"><span class="choice-circle"></span><span>Sonstiges</span></label>
+        </div>
+
+        <div style="margin-top:18px;font-weight:700;color:var(--navy);">3. Anlageziele</div>
+        <div class="small">Werden aus Frage 8 des Investment-Checks übernommen und können ergänzt werden.</div>
+        <div class="options" style="margin-top:8px;">
+          <label class="option"><input class="choice-input" type="checkbox" id="goalInvestment"><span class="choice-circle"></span><span>Geldanlage</span></label>
+          <label class="option"><input class="choice-input" type="checkbox" id="goalWealth"><span class="choice-circle"></span><span>Vermögensaufbau</span></label>
+          <label class="option"><input class="choice-input" type="checkbox" id="goalRetirement"><span class="choice-circle"></span><span>Altersvorsorge</span></label>
+          <label class="option"><input class="choice-input" type="checkbox" id="goalTax"><span class="choice-circle"></span><span>Steuervorteile</span></label>
+        </div>
+
+        <div id="leadHorizonLabel" style="margin-top:18px;font-weight:700;color:var(--navy);">4. Investitionshorizont <span class="req-star">*</span></div>
+        <div class="small">Wird aus Frage 9 des Investment-Checks vorbelegt.</div>
+        <div class="options" id="leadHorizonBlock" style="margin-top:8px;">
+          <label class="option"><input class="choice-input" type="radio" name="leadHorizon" value="unter 5 Jahre"><span class="choice-circle"></span><span>unter 5 Jahre</span></label>
+          <label class="option"><input class="choice-input" type="radio" name="leadHorizon" value="5 bis 10 Jahre"><span class="choice-circle"></span><span>5 bis 10 Jahre</span></label>
+          <label class="option"><input class="choice-input" type="radio" name="leadHorizon" value="10 bis 15 Jahre"><span class="choice-circle"></span><span>10 bis 15 Jahre</span></label>
+          <label class="option"><input class="choice-input" type="radio" name="leadHorizon" value="15 Jahre oder länger"><span class="choice-circle"></span><span>15 Jahre oder länger</span></label>
+          <label class="option"><input class="choice-input" type="radio" name="leadHorizon" value="noch offen"><span class="choice-circle"></span><span>noch offen</span></label>
+</div>
+
+        <div style="margin-top:18px;font-weight:700;color:var(--navy);">5. Geplante Mittel</div>
+        <div class="lead-grid">
+          <label>Eigenkapital, i. H. v. <span class="req-star">*</span>
+            <input type="text" id="leadEquity" placeholder="Betrag / Größenordnung">
+          </label>
+          <label>Finanzierung, i. H. v. <span class="small" style="font-weight:400;color:var(--muted);">(optional)</span>
+            <input type="text" id="leadFinancing" placeholder="Betrag / noch offen">
+          </label>
+        </div>
+
+        <div style="margin-top:18px;font-weight:700;color:var(--navy);">6. Bemerkungen</div>
+        <textarea id="leadNotes" style="width:100%;min-height:70px;margin-top:7px;border:1px solid var(--line);border-radius:4px;padding:10px;font:inherit;" placeholder="Bemerkungen"></textarea>
+
+        <div id="leadConsentLabel" style="margin-top:18px;font-weight:700;color:var(--navy);">7. Einverständniserklärung <span class="req-star">*</span></div>
+        <div class="lead-consent" id="leadConsentBlock">
+          <label>
+            <input type="checkbox" id="leadConsent">
+            <span>Die apoBank arbeitet mit sog. Immobilienspezialisten zur vertieften Aufklärung über Kapitalanlageimmobilien und deren Vermittlung zusammen. Der o.g. Kunde erklärt sich damit einverstanden, dass dieser Bogen zwecks Kontaktaufnahme zur Vermittlung einer Kapitalanlageimmobilie an einen an die mana Projektmanagement GmbH angebundenen Vermittler weitergeleitet wird. Der Kunde wird darauf hingewiesen, dass die von ihm aufgenommenen Daten und Informationen gespeichert und den genannten Partnerunternehmen der apoBank zur Verfügung gestellt werden, soweit dies zur Herbeiführung des Kapitalanlagezwecks erforderlich ist. Eine darüberhinausgehende Weitergabe der Daten des Kunden oder eine Nutzung für vertragsfremde Zwecke ist weder der apoBank noch den Partnerunternehmen gestattet. Der Kunde erklärt sich mit der Speicherung und Weitergabe seiner Daten einverstanden.</span>
+          </label>
+        </div>
+
+        <div class="lead-grid" style="margin-top:14px;">
+          <label>Ort, Datum – Kunde <span class="req-star">*</span>
+            <input type="text" id="leadCustomerPlaceDate" placeholder="Ort, Datum">
+          </label>
+        </div>
+
+        <div class="signature-wrap" id="signatureBlock">
+          <div id="signatureLabel" style="font-weight:700;color:var(--navy);">Unterschrift Kunde <span class="req-star">*</span></div>
+          <div class="signature-hint">Bitte unterschreiben Sie mit Maus, Finger oder Eingabestift im Feld.</div>
+          <canvas id="signaturePad" class="signature-pad"></canvas>
+          <div class="signature-actions">
+            <button type="button" class="secondary" onclick="clearSignature()">Unterschrift löschen</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;background:var(--light);padding:10px 12px;border-radius:4px;">
+          <strong>apoBank-Mitarbeiter:</strong> Ort, Datum und Unterschrift werden nach Eingang des Kundenrückläufers durch den Relationship Manager ergänzt.
+        </div>
+      </div>
+
+<div class="rm-box">
+        <strong>Optional: E-Mail an Ihren Relationship Manager vorbereiten</strong><br>
+        <span class="small">Die Adresse wird nur verwendet, um Ihr lokales E-Mail-Programm zu öffnen. Sie wird nicht gespeichert oder übertragen.</span>
+        <input type="email" id="rmEmail" placeholder="E-Mail-Adresse Ihres Relationship Managers">
+        
+        
+        <div class="lead-status" id="leadStatus"></div>
+        <div class="send-gate locked" id="sendGate">
+          <strong style="color:var(--navy);font-size:15px;">Rücksendung an Ihren Relationship Manager</strong>
+          <div class="send-warning">
+            <strong>Wichtig:</strong> Bitte erstellen und speichern Sie zuerst das unterschriebene PDF. Dieses PDF muss anschließend der vorbereiteten E-Mail als Anlage beigefügt werden.
+          </div>
+
+          <div class="return-actions" style="margin-top:14px;">
+            <button type="button" class="primary" onclick="printSummaryAndUnlock()">1. Investment-Check & Leadbogen als PDF erstellen</button>
+          </div>
+
+          <div class="confirm-attach">
+            <label>
+              <input type="checkbox" id="pdfReadyConfirm" disabled>
+              <span>Ich habe das unterschriebene PDF erstellt und gespeichert und werde es der E-Mail als Anlage beifügen.</span>
+            </label>
+          </div>
+
+          
+          <div class="small" style="margin-top:10px;">
+            <strong>Hinweis:</strong> Die E-Mail wird erst in Ihrem eigenen E-Mail-Programm vorbereitet. Bitte prüfen Sie dort Empfänger, Inhalt und PDF-Anhang vor dem Versand.
+          </div>
+
+          <div class="return-actions">
+            <button type="button" class="secondary" id="emailButton" onclick="prepareEmail()" disabled>2. E-Mail vorbereiten</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="small">
+      Die Auswertung stellt keine Anlage-, Steuer-, Rechts- oder Finanzierungsberatung dar. Eine konkrete Beurteilung erfolgt erst im persönlichen Beratungsgespräch.
+<div class="small">
+      Die Auswertung stellt keine Anlage-, Steuer-, Rechts- oder Finanzierungsberatung dar. Eine konkrete Beurteilung erfolgt erst im persönlichen Beratungsgespräch.
+    </div>
+  </section>
+</div>
+
+<script>
+const form = document.getElementById('checkForm');
+
+function answeredCount(){
+  let count = 0;
+  for(let i=1;i<=10;i++){
+    if(i===7 || i===8){
+      if(document.querySelectorAll(`input[name="q${i}"]:checked`).length>0) count++;
+    } else if(document.querySelector(`input[name="q${i}"]:checked`)) count++;
+  }
+  return count;
+}
+
+function updateProgress(){
+  const n=answeredCount();
+  document.getElementById('progressText').textContent=`${n} von 10 beantwortet`;
+  document.getElementById('progressBar').style.width=(n*10)+'%';
+}
+form.addEventListener('change', e=>{
+  if(e.target.name==='q7' || e.target.name==='q8'){
+    const checked=document.querySelectorAll(`input[name="${e.target.name}"]:checked`);
+    if(checked.length>2) e.target.checked=false;
+  }
+  updateProgress();
+});
+
+function val(name){
+  const x=document.querySelector(`input[name="${name}"]:checked`);
+  return x ? Number(x.value) : null;
+}
+function vals(name){
+  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>Number(x.value));
+}
+
+function evaluateForm(){
+  document.getElementById('warning').style.display='none';
+  if(answeredCount()<10){
+    document.getElementById('warning').style.display='block';
+    return;
+  }
+
+  const scores=[];
+  for(let i=1;i<=9;i++){
+    if(i===7 || i===8){
+      const v=vals('q'+i);
+      scores.push(v.length ? Math.max(...v) : 0);
+    }else{
+      scores.push(val('q'+i));
+    }
+  }
+  const total=scores.reduce((a,b)=>a+b,0); // max approx 45
+  const normalized=Math.round(total/45*100);
+
+  let potential,cls,title,text;
+  if(normalized>=72){
+    potential='A | Hohes Potenzial'; cls='a';
+    title='Hohes Investment-Potenzial';
+    text='Ihre Angaben sprechen dafür, dass eine Kapitalanlageimmobilie grundsätzlich gut zu Ihrer Einkommens-, Vermögens- und Lebenssituation passen könnte. Eine individuelle Analyse Ihrer Investitions- und Finanzierungsstruktur erscheint sinnvoll.';
+  }else if(normalized>=52){
+    potential='B | Interessantes Potenzial'; cls='b';
+    title='Interessantes Investment-Potenzial';
+    text='Mehrere Ihrer Angaben sprechen für eine nähere Prüfung. In einer persönlichen Analyse sollte geklärt werden, welche Investitionshöhe, Finanzierungsstruktur und Immobilienstrategie zu Ihrer Situation passen könnten.';
+  }else{
+    potential='C | Perspektivisches Potenzial'; cls='c';
+    title='Perspektivisches Investment-Potenzial';
+    text='Das Thema kann für Ihre weitere Vermögensplanung interessant bleiben. Auf Basis Ihrer aktuellen Angaben erscheint eine spätere Neubewertung bei Veränderungen von Einkommen, Liquidität oder Lebenssituation sinnvoll.';
+  }
+
+  const timing=val('q10');
+  let timingLabel,timingText;
+  if(timing===1){timingLabel='1 | zeitnah'; timingText='Sie zeigen eine konkrete bzw. zeitnahe Handlungsbereitschaft.'}
+  else if(timing===2){timingLabel='2 | kommende Monate'; timingText='Sie möchten das Thema in den kommenden Monaten näher prüfen.'}
+  else {timingLabel='3 | Orientierung'; timingText='Sie befinden sich derzeit vor allem in der Orientierungsphase.'}
+
+  const q3=val('q3'), q5=val('q5'), q6=val('q6'), q4=val('q4'), q9=val('q9');
+  document.getElementById('econSummary').textContent =
+    (q3>=4 && q6>=3) ? 'Ihre Angaben deuten auf gute bis sehr gute wirtschaftliche Voraussetzungen hin.' :
+    (q3>=3 || q6>=3) ? 'Grundsätzlich sind wirtschaftliche Voraussetzungen erkennbar; die Tragfähigkeit sollte individuell geprüft werden.' :
+    'Die wirtschaftliche Tragfähigkeit sollte vor einer weiteren Planung genauer betrachtet werden.';
+  document.getElementById('taxSummary').textContent =
+    q4>=4 ? 'Ihre Steuerbelastung bietet einen klaren Anlass, mögliche steuerliche Effekte einer Immobilienstrategie individuell zu prüfen.' :
+    'Steuerliche Effekte können relevant sein, sollten aber nicht der alleinige Investitionsgrund sein.';
+  document.getElementById('horizonSummary').textContent =
+    q9>=4 ? 'Ihr genannter Anlagehorizont passt grundsätzlich gut zu einem langfristigen Immobilieninvestment.' :
+    q9>=2 ? 'Ihr Anlagehorizont kann grundsätzlich passen; die konkrete Haltedauer sollte besprochen werden.' :
+    'Ein sehr kurzer Anlagehorizont passt nur eingeschränkt zu einer klassischen Kapitalanlageimmobilie.';
+  document.getElementById('timingSummary').textContent=timingText;
+
+  document.getElementById('resultTitle').textContent=title;
+  const pb=document.getElementById('potentialBadge');
+  pb.className='badge '+cls; pb.textContent=potential;
+  document.getElementById('timingBadge').textContent=timingLabel;
+  document.getElementById('resultText').textContent=text;
+  buildAnswerSummary(potential, timingLabel);
+  syncLeadFromCheck();
+  syncLeadPrint();
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+
+
+function clearAllData(){
+  if(!confirm('Möchten Sie wirklich alle Eingaben, die Signatur und die aktuelle Auswertung aus diesem Browserfenster löschen?')) return;
+
+  form.reset();
+
+  // Leadfelder
+  document.querySelectorAll('#leadForm input, #leadForm textarea').forEach(el=>{
+    if(el.type==='checkbox' || el.type==='radio') el.checked=false;
+    else el.value='';
+  });
+
+  // Signatur
+  if(typeof clearSignature === 'function') clearSignature();
+
+  // Auswertung / Rückgabe
+  const result=document.getElementById('result');
+  if(result) result.style.display='none';
+  const returnSection=document.getElementById('returnSection');
+  if(returnSection) returnSection.style.display='none';
+
+  // Status / Sperren
+  if(typeof pdfStepCompleted !== 'undefined') pdfStepCompleted=false;
+  const confirmBox=document.getElementById('pdfReadyConfirm');
+  if(confirmBox){ confirmBox.checked=false; confirmBox.disabled=true; }
+  const emailButton=document.getElementById('emailButton');
+  if(emailButton) emailButton.disabled=true;
+  const sendGate=document.getElementById('sendGate');
+  if(sendGate) sendGate.classList.add('locked');
+
+  // Validierungsmarkierungen
+  if(typeof clearLeadErrors === 'function') clearLeadErrors();
+  document.querySelectorAll('.validation-error,.validation-warning').forEach(el=>{
+    el.classList.remove('validation-error','validation-warning');
+  });
+  document.querySelectorAll('.validation-message').forEach(el=>{
+    el.textContent='';
+    el.classList.remove('show');
+  });
+
+  // Fortschritt
+  if(typeof updateProgress === 'function') updateProgress();
+
+  window.scrollTo({top:0,behavior:'smooth'});
+  alert('Alle Eingaben und die Signatur wurden aus dieser Sitzung entfernt.');
+}
+
+function resetForm(){
+  form.reset();
+  document.getElementById('result').style.display='none';
+  document.getElementById('warning').style.display='none';
+  updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+updateProgress();
+
+function answerText(name){
+  if(name==='q7' || name==='q8'){
+    return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>{
+      const lab=x.closest('label');
+      return lab ? lab.innerText.trim() : '';
+    }).join(' + ');
+  }
+  const x=document.querySelector(`input[name="${name}"]:checked`);
+  if(!x) return '';
+  const lab=x.closest('label');
+  return lab ? lab.innerText.trim() : '';
+}
+
+function buildAnswerSummary(potentialLabel, timingLabel){
+  const items=[
+    ['Alter', answerText('q1')],
+    ['Berufliche Situation', answerText('q2')],
+    ['Jahresbruttoeinkommen', answerText('q3')],
+    ['Steuerbelastung', answerText('q4')],
+    ['Möglicher Eigenkapitaleinsatz', answerText('q5')],
+    ['Monatlich verfügbar für Vermögensaufbau', answerText('q6')],
+    ['Immobilienvermögen', answerText('q7')],
+    ['Persönliche Ziele', answerText('q8')],
+    ['Anlagehorizont', answerText('q9')],
+    ['Aktuelles Interesse', answerText('q10')]
+  ];
+
+  const tbody=document.querySelector('#answerTable tbody');
+  tbody.innerHTML='';
+  items.forEach(([k,v])=>{
+    const tr=document.createElement('tr');
+    const th=document.createElement('th'); th.textContent=k;
+    const td=document.createElement('td'); td.textContent=v;
+    tr.appendChild(th); tr.appendChild(td); tbody.appendChild(tr);
+  });
+
+  let focus=[];
+  if(val('q4')>=4) focus.push('hoher steuerlicher Handlungsdruck');
+  const q7text=answerText('q7');
+  if(q7text.includes('keine Kapitalanlage')) focus.push('Erstinvestor');
+  if(q7text.includes('1 Kapitalanlage')) focus.push('Ausbaukunde');
+  if(q7text.includes('2–3') || q7text.includes('mehr als 3')) focus.push('erfahrener Immobilienkunde');
+  if(val('q9')>=4) focus.push('langfristiger Anlagehorizont');
+  if(val('q10')===1) focus.push('zeitnaher Beratungswunsch');
+  else if(val('q10')===2) focus.push('mittelfristiges Interesse');
+  else focus.push('Orientierungsphase');
+  if(answerText('q8').includes('Steuerbelastung reduzieren')) focus.push('Steueroptimierung');
+  if(answerText('q8').includes('Vermögen aufbauen')) focus.push('Vermögensaufbau');
+
+  const focusText=[...new Set(focus)].join(' · ');
+  document.getElementById('advisoryFocus').textContent=focusText || 'individuelle Ausgangssituation prüfen';
+
+  document.getElementById('printPotential').textContent=potentialLabel;
+  document.getElementById('printTiming').textContent=timingLabel;
+  document.getElementById('printConsulting').textContent=document.getElementById('beratung').checked ? 'Ja' : 'noch nicht bestätigt';
+  document.getElementById('printFocus').textContent=focusText || 'individuelle Ausgangssituation prüfen';
+
+  const pt=document.getElementById('printAnswers');
+  pt.innerHTML='';
+  items.forEach(([k,v])=>{
+    const tr=document.createElement('tr');
+    const th=document.createElement('th'); th.textContent=k;
+    const td=document.createElement('td'); td.textContent=v;
+    tr.appendChild(th); tr.appendChild(td); pt.appendChild(tr);
+  });
+  document.getElementById('returnSection').style.display='block';
+  requestAnimationFrame(()=>{
+    if(!signatureHasInk) setupSignatureCanvas();
+  });
+}
+
+function printSummary(){
+  if(!ensureLeadReadyForConsulting()) return;
+  document.getElementById('printConsulting').textContent='Ja';
+  syncLeadFromCheck();
+  syncLeadPrint();
+  window.print();
+}
+
+
+function checkedText(selector){
+  const x=document.querySelector(selector);
+  if(!x) return '';
+  const lab=x.closest('label');
+  return lab ? lab.innerText.trim() : (x.value || '');
+}
+function checkedList(ids){
+  return ids.filter(id=>document.getElementById(id)?.checked).map(id=>{
+    const lab=document.getElementById(id).closest('label');
+    return lab ? lab.innerText.trim() : id;
+  });
+}
+function getLeadData(){
+  return {
+    title:document.getElementById('leadTitle').value.trim(),
+    first:document.getElementById('leadFirstName').value.trim(),
+    last:document.getElementById('leadLastName').value.trim(),
+    street:document.getElementById('leadStreet').value.trim(),
+    houseNo:document.getElementById('leadHouseNo').value.trim(),
+    postalCode:document.getElementById('leadPostalCode').value.trim(),
+    city:document.getElementById('leadCity').value.trim(),
+    phonePreference:document.getElementById('leadPhonePreference').value.trim(),
+    customerNo:document.getElementById('leadCustomerNo').value.trim(),
+    birthDate:document.getElementById('leadBirthDate').value,
+    profession:document.getElementById('leadProfession').value.trim(),
+    phone:document.getElementById('leadPhone').value.trim(),
+    email:document.getElementById('leadCustomerEmail').value.trim(),
+    rmName:'',
+    personnelNo:'',
+    rmLocation:'',
+    branch:'',
+    financeSpecialist:'',
+    financePhone:'',
+    reason:document.querySelector('input[name="leadReason"]:checked')?.value || '',
+    goals:checkedList(['goalInvestment','goalWealth','goalRetirement','goalTax']),
+    horizon:document.querySelector('input[name="leadHorizon"]:checked')?.value || '',
+    equity:document.getElementById('leadEquity').value.trim(),
+    financing:document.getElementById('leadFinancing').value.trim(),
+    notes:document.getElementById('leadNotes').value.trim(),
+    consent:document.getElementById('leadConsent').checked,
+    customerPlaceDate:document.getElementById('leadCustomerPlaceDate').value.trim(),
+    customerSignature:signatureHasInk ? signaturePad.toDataURL('image/png') : '',
+    rmPlaceDate:'',
+    rmSignature:''
+  };
+}
+
+function syncLeadFromCheck(){
+  const goals=answerText('q8');
+  document.getElementById('goalInvestment').checked =
+    goals.includes('Liquidität sinnvoll einsetzen') || goals.includes('Vermögen breiter aufstellen');
+  document.getElementById('goalWealth').checked =
+    goals.includes('Vermögen aufbauen') || goals.includes('Immobilienvermögen aufbauen');
+  document.getElementById('goalRetirement').checked = goals.includes('Altersvorsorge');
+  document.getElementById('goalTax').checked = goals.includes('Steuerbelastung reduzieren');
+
+  const horizon=answerText('q9');
+  let hv='';
+  if(horizon.includes('unter 5')) hv='unter 5 Jahre';
+  else if(horizon.includes('5–10') || horizon.includes('5-10') || horizon.includes('5 bis 10')) hv='5 bis 10 Jahre';
+  else if(horizon.includes('10–15') || horizon.includes('10-15') || horizon.includes('10 bis 15')) hv='10 bis 15 Jahre';
+  else if(horizon.includes('15 Jahre oder länger')) hv='15 Jahre oder länger';
+  else if(horizon.includes('noch offen')) hv='noch offen';
+  if(hv){
+    const el=document.querySelector(`input[name="leadHorizon"][value="${hv}"]`);
+    if(el) el.checked=true;
+  }
+  syncLeadPrint();
+
+  const equity=answerText('q5');
+  if(equity && !document.getElementById('leadEquity').value){
+    document.getElementById('leadEquity').value=equity;
+  }
+}
+
+
+function formatGermanDate(value){
+  if(!value) return '';
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if(m) return `${m[3]}.${m[2]}.${m[1]}`;
+  return value;
+}
+
+
+function setBox(id, checked){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.classList.toggle('checked', !!checked);
+}
+
+function syncLeadPrint(){
+  const d=getLeadData();
+  const set=(id,val)=>{const el=document.getElementById(id); if(el) el.textContent=val || '';};
+  set('poTitle',d.title); set('poFirst',d.first); set('poLast',d.last); set('poCity',d.city);
+  set('poPhonePref',d.phonePreference); set('poCustomerNo',d.customerNo); set('poBirthDate',formatGermanDate(d.birthDate));
+  set('poProfession',d.profession); set('poPhone',d.phone); set('poEmail',d.email);
+  set('poEquity',d.equity); set('poFinancing',d.financing); set('poNotes',d.notes);
+  set('poCustomerPlaceDate',d.customerPlaceDate);
+  const mark=(id,on)=>{const el=document.getElementById(id); if(el) el.textContent=on?'x':'';};
+  mark('poReasonApo',d.reason==='apoPur-Grundsatzgespräch');
+  mark('poReasonInvest',d.reason==='Anlagegespräch');
+  mark('poReasonPension',d.reason==='Vorsorgegespräch');
+  mark('poReasonOther',d.reason==='Sonstiges');
+  mark('poGoalInvestment',d.goals.includes('Geldanlage'));
+  mark('poGoalWealth',d.goals.includes('Vermögensaufbau'));
+  mark('poGoalRetirement',d.goals.includes('Altersvorsorge'));
+  mark('poGoalTax',d.goals.includes('Steuervorteile'));
+  const selectedHorizon = document.querySelector('input[name="leadHorizon"]:checked')?.value || d.horizon || '';
+  setBox('phUnder5', selectedHorizon === 'unter 5 Jahre');
+  setBox('ph5to10', selectedHorizon === '5 bis 10 Jahre');
+  setBox('ph10to15', selectedHorizon === '10 bis 15 Jahre');
+  setBox('ph15plus', selectedHorizon === '15 Jahre oder länger');
+  setBox('phOpen', selectedHorizon === 'noch offen');
+  const img=document.getElementById('poCustomerSignature');
+  if(img){
+    if(signatureHasInk){img.src=signaturePad.toDataURL('image/png');img.style.display='block';}
+    else{img.removeAttribute('src');img.style.display='none';}
+  }
+}
+
+
+
+const signaturePad = document.getElementById('signaturePad');
+const sigCtx = signaturePad.getContext('2d');
+let signatureHasInk = false;
+let drawing = false;
+let activePointerId = null;
+
+function setupSignatureCanvas(){
+  const rect = signaturePad.getBoundingClientRect();
+  if(rect.width < 20 || rect.height < 20) return;
+  const ratio = window.devicePixelRatio || 1;
+  signaturePad.width = Math.round(rect.width * ratio);
+  signaturePad.height = Math.round(rect.height * ratio);
+
+  // Draw in CSS pixel coordinates. No mirroring / negative scaling.
+  sigCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  sigCtx.lineWidth = 2;
+  sigCtx.lineCap = 'round';
+  sigCtx.lineJoin = 'round';
+  sigCtx.strokeStyle = '#1f2b33';
+}
+
+function signaturePoint(e){
+  const rect = signaturePad.getBoundingClientRect();
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
+}
+
+signaturePad.addEventListener('pointerdown', e=>{
+  e.preventDefault();
+  activePointerId = e.pointerId;
+  signaturePad.setPointerCapture(e.pointerId);
+  drawing = true;
+  const p = signaturePoint(e);
+  sigCtx.beginPath();
+  sigCtx.moveTo(p.x, p.y);
+});
+
+signaturePad.addEventListener('pointermove', e=>{
+  if(!drawing || e.pointerId !== activePointerId) return;
+  e.preventDefault();
+  const p = signaturePoint(e);
+  sigCtx.lineTo(p.x, p.y);
+  sigCtx.stroke();
+  signatureHasInk = true;
+});
+
+function finishSignature(e){
+  if(!drawing || e.pointerId !== activePointerId) return;
+  e.preventDefault();
+  drawing = false;
+  sigCtx.closePath();
+  try { signaturePad.releasePointerCapture(e.pointerId); } catch(err) {}
+  activePointerId = null;
+  syncLeadPrint();
+  refreshLeadStatusLive();
+}
+signaturePad.addEventListener('pointerup', finishSignature);
+signaturePad.addEventListener('pointercancel', finishSignature);
+
+function clearSignature(){
+  // Reset transform temporarily so the entire physical canvas is cleared.
+  sigCtx.save();
+  sigCtx.setTransform(1,0,0,1,0,0);
+  sigCtx.clearRect(0,0,signaturePad.width,signaturePad.height);
+  sigCtx.restore();
+  signatureHasInk = false;
+  syncLeadPrint();
+  refreshLeadStatusLive();
+}
+
+
+
+
+function addValidationMessage(el, text, type='error'){
+  if(!el) return;
+  el.classList.remove('validation-error','validation-warning');
+  el.classList.add(type==='warning' ? 'validation-warning' : 'validation-error');
+
+  let msg=el.parentElement.querySelector('.validation-message');
+  if(!msg){
+    msg=document.createElement('div');
+    msg.className='validation-message';
+    el.parentElement.appendChild(msg);
+  }
+  msg.textContent=text;
+  msg.classList.add('show');
+}
+
+function clearValidationMessage(el){
+  if(!el) return;
+  el.classList.remove('validation-error','validation-warning');
+  const msg=el.parentElement.querySelector('.validation-message');
+  if(msg){
+    msg.textContent='';
+    msg.classList.remove('show');
+  }
+}
+
+function selectedAnswerLabel(name){
+  const checked=document.querySelector(`input[name="${name}"]:checked`);
+  if(!checked) return '';
+  const lab=checked.closest('label');
+  return lab ? lab.textContent.trim() : '';
+}
+
+function ageFromBirthDate(value){
+  if(!value) return null;
+  const parts=value.split('-').map(Number);
+  if(parts.length!==3) return null;
+  const birth=new Date(parts[0],parts[1]-1,parts[2]);
+  if(isNaN(birth.getTime())) return null;
+  const now=new Date();
+  if(birth>now) return -1;
+  let age=now.getFullYear()-birth.getFullYear();
+  const m=now.getMonth()-birth.getMonth();
+  if(m<0 || (m===0 && now.getDate()<birth.getDate())) age--;
+  return age;
+}
+
+function ageMatchesInvestmentCheck(age){
+  const label=selectedAnswerLabel('q1');
+  if(!label || age===null || age<0) return true;
+  const nums=(label.match(/\d+/g)||[]).map(Number);
+  if(/unter/i.test(label) && nums.length) return age < nums[0];
+  if(/über|älter/i.test(label) && nums.length) return age >= nums[0];
+  if(nums.length>=2) return age>=nums[0] && age<=nums[1];
+  if(nums.length===1 && /\+|ab/i.test(label)) return age>=nums[0];
+  return true;
+}
+
+function validatePlausibility(showErrors=true){
+  const issues=[];
+
+  const first=document.getElementById('leadFirstName');
+  const last=document.getElementById('leadLastName');
+  const street=document.getElementById('leadStreet');
+  const house=document.getElementById('leadHouseNo');
+  const plz=document.getElementById('leadPostalCode');
+  const city=document.getElementById('leadCity');
+  const email=document.getElementById('leadCustomerEmail');
+  const phone=document.getElementById('leadPhone');
+  const birth=document.getElementById('leadBirthDate');
+
+  [first,last,street,house,plz,city,email,phone,birth].forEach(clearValidationMessage);
+
+  const nameRx=/^[A-Za-zÄÖÜäöüßÀ-ž'’\- ]{2,}$/u;
+  if(first && first.value.trim() && !nameRx.test(first.value.trim())){
+    issues.push('Vorname');
+    if(showErrors) addValidationMessage(first,'Bitte prüfen Sie den Vornamen.');
+  }
+  if(last && last.value.trim() && !nameRx.test(last.value.trim())){
+    issues.push('Nachname');
+    if(showErrors) addValidationMessage(last,'Bitte prüfen Sie den Nachnamen.');
+  }
+  if(street && street.value.trim() && !/[A-Za-zÄÖÜäöüßÀ-ž]/u.test(street.value)){
+    issues.push('Straße');
+    if(showErrors) addValidationMessage(street,'Bitte geben Sie eine plausible Straßenbezeichnung ein.');
+  }
+  if(house && house.value.trim() && !/\d/.test(house.value)){
+    issues.push('Hausnummer');
+    if(showErrors) addValidationMessage(house,'Die Hausnummer sollte mindestens eine Ziffer enthalten.');
+  }
+  if(plz && plz.value.trim() && !/^\d{5}$/.test(plz.value.trim())){
+    issues.push('Postleitzahl');
+    if(showErrors) addValidationMessage(plz,'Bitte geben Sie eine fünfstellige deutsche Postleitzahl ein.');
+  }
+  if(city && city.value.trim() && !/[A-Za-zÄÖÜäöüßÀ-ž]/u.test(city.value)){
+    issues.push('Ort');
+    if(showErrors) addValidationMessage(city,'Bitte prüfen Sie die Ortsangabe.');
+  }
+  if(email && email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())){
+    issues.push('E-Mail-Adresse');
+    if(showErrors) addValidationMessage(email,'Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+  }
+  if(phone && phone.value.trim()){
+    const digits=phone.value.replace(/\D/g,'');
+    if(digits.length<7 || digits.length>16 || !/^[0-9+()\/\-\s.]+$/.test(phone.value.trim())){
+      issues.push('Telefonnummer');
+      if(showErrors) addValidationMessage(phone,'Bitte prüfen Sie die Telefonnummer.');
+    }
+  }
+  if(birth && birth.value){
+    const age=ageFromBirthDate(birth.value);
+    if(age===-1 || age===null || age>110){
+      issues.push('Geburtsdatum');
+      if(showErrors) addValidationMessage(birth,'Bitte geben Sie ein plausibles Geburtsdatum ein.');
+    } else if(!ageMatchesInvestmentCheck(age)){
+      issues.push('Geburtsdatum / Altersgruppe');
+      if(showErrors) addValidationMessage(birth,'Das Geburtsdatum passt nicht zur zuvor gewählten Altersgruppe im Investment-Check.');
+    }
+  }
+  return issues;
+}
+
+
+function refreshLeadStatusLive(){
+  if(!customerWantsConsulting()) return;
+
+  // Prüfen, ohne pauschal neue rote Markierungen aufzubauen
+  clearLeadErrors();
+  validatePlausibility(false);
+
+  const missing=[];
+
+  requiredLeadFields().forEach(f=>{
+    const el=document.getElementById(f.id);
+    if(!el || !el.value.trim()) missing.push(f.label);
+  });
+
+  if(!document.querySelector('input[name="leadReason"]:checked')) missing.push('Gesprächsanlass');
+  if(!document.querySelector('input[name="leadHorizon"]:checked')) missing.push('Investitionshorizont');
+  if(!document.getElementById('leadEquity').value.trim()) missing.push('Eigenkapital');
+  if(!document.getElementById('leadConsent').checked) missing.push('Einverständniserklärung');
+  if(!signatureHasInk) missing.push('Kundensignatur');
+
+  const plausibilityIssues=validatePlausibility(false);
+  const status=document.getElementById('leadStatus');
+
+  if(missing.length || plausibilityIssues.length){
+    status.className='lead-status missing';
+    const all=[...missing, ...plausibilityIssues];
+    status.textContent='Leadfreigabe noch unvollständig: ' + all.join(' · ');
+  }else{
+    status.className='lead-status ok';
+    status.textContent='Leadfreigabe vollständig. Sie können jetzt das unterschriebene PDF erstellen.';
+  }
+}
+
+function customerWantsConsulting(){
+  return document.getElementById('beratung').checked;
+}
+
+function requiredLeadFields(){
+  return [
+    {id:'leadFirstName', label:'Vorname'},
+    {id:'leadLastName', label:'Nachname'},
+    {id:'leadStreet', label:'Straße'},
+    {id:'leadHouseNo', label:'Hausnummer'},
+    {id:'leadPostalCode', label:'Postleitzahl'},
+    {id:'leadCity', label:'Ort'},
+    {id:'leadBirthDate', label:'Geburtsdatum'},
+    {id:'leadProfession', label:'Berufsgruppe / Fachrichtung'},
+    {id:'leadPhone', label:'Telefon'},
+    {id:'leadCustomerEmail', label:'E-Mail-Adresse'},
+    {id:'leadCustomerPlaceDate', label:'Ort, Datum – Kunde'}
+  ];
+}
+
+function clearLeadErrors(){
+  requiredLeadFields().forEach(f=>{
+    const el=document.getElementById(f.id);
+    const lab=el ? el.closest('label') : null;
+    if(lab) lab.classList.remove('field-error');
+  });
+
+  ['leadReasonBlock','leadHorizonBlock','leadConsentBlock','signatureBlock'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.remove('action-error');
+  });
+  ['leadReasonLabel','leadHorizonLabel','leadConsentLabel','signatureLabel'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.remove('action-error-label');
+  });
+}
+
+function markActionError(blockId, labelId){
+  const block=document.getElementById(blockId);
+  const label=document.getElementById(labelId);
+  if(block) block.classList.add('action-error');
+  if(label) label.classList.add('action-error-label');
+}
+
+function validateLeadForm(showErrors=true){
+  clearLeadErrors();
+  const missing=[];
+
+  requiredLeadFields().forEach(f=>{
+    const el=document.getElementById(f.id);
+    if(!el || !el.value.trim()){
+      missing.push(f.label);
+      if(showErrors && el){
+        const lab=el.closest('label');
+        if(lab) lab.classList.add('field-error');
+      }
+    }
+  });
+
+  if(!document.querySelector('input[name="leadReason"]:checked')){
+    missing.push('Gesprächsanlass');
+    if(showErrors) markActionError('leadReasonBlock','leadReasonLabel');
+  }
+
+  if(!document.querySelector('input[name="leadHorizon"]:checked')){
+    missing.push('Investitionshorizont');
+    if(showErrors) markActionError('leadHorizonBlock','leadHorizonLabel');
+  }
+
+  if(!document.getElementById('leadEquity').value.trim()){
+    missing.push('Eigenkapital');
+    if(showErrors){
+      const el=document.getElementById('leadEquity');
+      const lab=el ? el.closest('label') : null;
+      if(lab) lab.classList.add('field-error');
+    }
+  }
+
+  if(!document.getElementById('leadConsent').checked){
+    missing.push('Einverständniserklärung');
+    if(showErrors) markActionError('leadConsentBlock','leadConsentLabel');
+  }
+
+  if(!signatureHasInk){
+    missing.push('Kundensignatur');
+    if(showErrors) markActionError('signatureBlock','signatureLabel');
+  }
+
+  const status=document.getElementById('leadStatus');
+  if(customerWantsConsulting()){
+    if(missing.length){
+      status.className='lead-status missing';
+      status.textContent='Leadfreigabe noch unvollständig: ' + missing.join(' · ');
+    }else{
+      status.className='lead-status ok';
+      status.textContent='Leadfreigabe vollständig. Sie können jetzt das unterschriebene PDF erstellen.';
+    }
+  }else{
+    status.className='lead-status';
+    status.textContent='';
+  }
+  return missing;
+}
+
+function updateConsultingFlow(){
+  const wants=customerWantsConsulting();
+  document.getElementById('consultingRequirement').style.display = wants ? 'block' : 'none';
+  document.getElementById('leadForm').classList.toggle('required-active', wants);
+
+  // Useful defaults that avoid needless customer effort
+  if(wants){
+    if(!document.getElementById('leadCustomerPlaceDate').value.trim()){
+      const city=document.getElementById('leadCity').value.trim();
+      const today=new Date().toLocaleDateString('de-DE');
+      document.getElementById('leadCustomerPlaceDate').value=(city ? city+', ' : '')+today;
+    }
+    refreshLeadStatusLive();
+  } else {
+    clearLeadErrors();
+    const status=document.getElementById('leadStatus');
+    status.className='lead-status';
+    status.textContent='';
+    document.getElementById('emailButton').disabled=true;
+  }
+}
+
+function ensureLeadReadyForConsulting(){
+  if(!customerWantsConsulting()){
+    alert('Für eine Weitergabe an Ihren Relationship Manager und die persönliche Beratung durch MANA setzen Sie bitte zuerst den Haken „Ja, ich möchte meine persönliche Situation ... analysieren lassen“.');
+    return false;
+  }
+  const missing=validateLeadForm(true);
+  const plausibilityIssues=validatePlausibility(true);
+  if(missing.length || plausibilityIssues.length){
+    alert('Für die persönliche Beratung benötigen wir einen vollständig und plausibel ausgefüllten sowie unterschriebenen Leadbogen. Bitte prüfen Sie die rot markierten Angaben.');
+    document.getElementById('leadForm').scrollIntoView({behavior:'smooth', block:'start'});
+    return false;
+  }
+  return true;
+}
+
+let pdfStepCompleted = false;
+
+function printSummaryAndUnlock(){
+  if(!ensureLeadReadyForConsulting()) return;
+
+  document.getElementById('printConsulting').textContent='Ja';
+
+  // Daten aus dem Investment-Check nochmals sauber in den Leadbogen übernehmen
+  syncLeadFromCheck();
+  syncLeadPrint();
+
+  pdfStepCompleted = true;
+  const confirm = document.getElementById('pdfReadyConfirm');
+  confirm.disabled = false;
+  document.getElementById('sendGate').classList.remove('locked');
+
+  window.print();
+}
+
+document.getElementById('pdfReadyConfirm').addEventListener('change', function(){
+  document.getElementById('emailButton').disabled = !(pdfStepCompleted && this.checked);
+});
+
+function prepareEmail(){
+  if(!ensureLeadReadyForConsulting()) return;
+  if(!pdfStepCompleted || !document.getElementById('pdfReadyConfirm').checked){
+    alert('Bitte erstellen Sie zuerst das unterschriebene PDF und bestätigen Sie, dass Sie es der E-Mail als Anlage beifügen.');
+    return;
+  }
+  const email=document.getElementById('rmEmail').value.trim();
+  if(!email){
+    alert('Bitte tragen Sie die E-Mail-Adresse Ihres Relationship Managers ein.');
+    return;
+  }
+  const potential=document.getElementById('potentialBadge').textContent;
+  const timing=document.getElementById('timingBadge').textContent;
+  const focus=document.getElementById('advisoryFocus').textContent;
+  const consulting=document.getElementById('beratung').checked ? 'Ja' : 'noch nicht bestätigt';
+  const lead=getLeadData();
+
+  const answers=[
+    ['1. Alter', answerText('q1')],
+    ['2. Berufliche Situation', answerText('q2')],
+    ['3. Jahresbruttoeinkommen', answerText('q3')],
+    ['4. Steuerbelastung', answerText('q4')],
+    ['5. Möglicher Eigenkapitaleinsatz', answerText('q5')],
+    ['6. Monatlich verfügbar für Vermögensaufbau', answerText('q6')],
+    ['7. Immobilienvermögen', answerText('q7')],
+    ['8. Persönliche Ziele', answerText('q8')],
+    ['9. Anlagehorizont', answerText('q9')],
+    ['10. Aktuelles Interesse', answerText('q10')]
+  ];
+
+  const lines=[
+    'Guten Tag,',
+    '',
+    'ich habe den MANA Investment-Check durchgeführt.',
+    '',
+    'Mein Ergebnis:',
+    '',
+    'Investment-Potenzial: '+potential,
+    'Aktualität: '+timing,
+    'Beratungswunsch: '+consulting,
+    '',
+    'Beratungsschwerpunkt: '+focus,
+    '',
+    'Meine Angaben im Investment-Check:',
+    ''
+  ];
+
+  answers.forEach(([k,v])=>lines.push(k+': '+v));
+  lines.push(
+    '',
+    'Leadbogen:',
+    'Kunde: '+([lead.title,lead.first,lead.last].filter(Boolean).join(' ') || 'nicht eingetragen'),
+    'Adresse: '+(([lead.street,lead.houseNo].filter(Boolean).join(' ') + ((lead.postalCode || lead.city) ? ', ' : '') + [lead.postalCode,lead.city].filter(Boolean).join(' ')) || 'nicht eingetragen'),
+    'Geburtsdatum: '+(lead.birthDate || 'nicht eingetragen'),
+    'Berufsgruppe/Fachrichtung: '+(lead.profession || 'nicht eingetragen'),
+    'Telefon: '+(lead.phone || 'nicht eingetragen'),
+    'E-Mail: '+(lead.email || 'nicht eingetragen'),
+    'Stammnummer: '+(lead.customerNo || 'nicht eingetragen'),
+        'Gesprächsanlass: '+(lead.reason || 'nicht gewählt'),
+    'Anlageziele: '+(lead.goals.join(', ') || 'nicht gewählt'),
+    'Investitionshorizont: '+(lead.horizon || 'nicht gewählt'),
+    'Eigenkapital: '+(lead.equity || 'offen'),
+    'Finanzierung: '+(lead.financing || 'offen'),
+    'Einverständniserklärung Kunde: '+(lead.consent ? 'bestätigt' : 'noch nicht bestätigt'),
+    'Kundensignatur: '+(signatureHasInk ? 'vorhanden' : 'noch nicht vorhanden'),
+    'Beraterdaten / apoBank-Unterschrift: werden nach Rücklauf durch den Relationship Manager ergänzt',
+    '',
+    'WICHTIG: Das unterschriebene PDF mit Investment-Check und Leadbogen füge ich dieser E-Mail als Anlage bei.',
+    '',
+    'Viele Grüße'
+  );
+
+  const subject='Mein MANA Investment-Check';
+  const uri='mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(lines.join('\n'));
+  window.location.href=uri;
+}
+
+
+const liveFieldIds=[
+  'leadFirstName','leadLastName','leadStreet','leadHouseNo','leadPostalCode','leadCity',
+  'leadBirthDate','leadProfession','leadPhone','leadCustomerEmail','leadCustomerPlaceDate',
+  'leadEquity','leadFinancing'
+];
+
+liveFieldIds.forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){
+    ['input','change','blur'].forEach(evt=>{
+      el.addEventListener(evt, ()=>{
+        clearValidationMessage(el);
+        refreshLeadStatusLive();
+      });
+    });
+  }
+});
+
+document.querySelectorAll('input[name="leadReason"],input[name="leadHorizon"]').forEach(el=>{
+  el.addEventListener('change', refreshLeadStatusLive);
+});
+
+const consentLive=document.getElementById('leadConsent');
+if(consentLive) consentLive.addEventListener('change', refreshLeadStatusLive);
+
+</script>
+
+
+
+<div id="printSheet">
+  <section class="pdf-page" id="pdfPage1">
+    <div style="font-size:24pt;font-weight:700;color:#234A63;">MANA</div>
+    <div style="font-size:18pt;font-weight:700;margin-top:4px;">Investment-Check – Ergebnis & Kundenangaben</div>
+    <div style="margin:14px 0 8px;">
+      <strong>Investment-Potenzial:</strong> <span id="printPotential"></span><br>
+      <strong>Aktualität:</strong> <span id="printTiming"></span><br>
+      <strong>Beratungswunsch:</strong> <span id="printConsulting"></span>
+    </div>
+    <div style="margin:12px 0;padding:10px;background:#f5f0e4;">
+      <strong>Beratungsschwerpunkt:</strong> <span id="printFocus"></span>
+    </div>
+    <table style="width:100%;border-collapse:collapse;"><tbody id="printAnswers"></tbody></table>
+    <div style="margin-top:16px;font-size:9pt;color:#666;">Diese Zusammenfassung wurde vom Kunden selbst auf Basis seiner Angaben im MANA Investment-Check erstellt. Sie dient der Vorbereitung eines persönlichen Beratungsgesprächs und ersetzt keine individuelle Beratung.</div>
+  </section>
+
+  <section class="pdf-page lead-original" id="pdfPage2">
+    <div class="toprow">
+      <div>
+        <div class="emailline">Per E-Mail an: &nbsp;&nbsp;&nbsp; <a>Reservierung@mana.AG</a></div>
+        <div class="lead-title">Leadbogen für Immobilien</div>
+        <div class="lead-sub">apoBank an mana</div>
+      </div>
+      <img class="apo-logo" src="data:image/png;base64,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">
+    </div>
+
+    <div class="section-title">1. Allgemeine Daten</div>
+    <div class="line-row"><div class="label">Kundenname:</div><div class="split3">
+      <div><div class="fieldline" id="poTitle"></div><div class="tinylabel">Titel</div></div>
+      <div><div class="fieldline" id="poFirst"></div><div class="tinylabel">Vorname</div></div>
+      <div><div class="fieldline" id="poLast"></div><div class="tinylabel">Nachname</div></div>
+    </div></div>
+    <div class="line-row"><div class="label">Wohnort:</div><div class="fieldline" id="poCity"></div></div>
+    <div class="line-row"><div class="label">Präferenz Telefontermin</div><div class="fieldline" id="poPhonePref"></div></div>
+    <div class="line-row"><div class="label">Stammnummer:</div><div class="fieldline" id="poCustomerNo"></div></div>
+    <div class="line-row"><div class="label">Geburtsdatum:</div><div class="fieldline" id="poBirthDate"></div></div>
+    <div class="line-row"><div class="label">Berufsgruppe/Fachrichtung:</div><div class="fieldline" id="poProfession"></div></div>
+    <div class="line-row"><div class="label">Kontaktdaten:</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8mm;">
+      <div><div class="fieldline" id="poPhone"></div><div class="tinylabel">Telefon</div></div>
+      <div><div class="fieldline" id="poEmail"></div><div class="tinylabel">E-Mail-Adresse</div></div>
+    </div></div>
+
+    <div class="section-title">2. Beraterdaten</div>
+    <div style="margin-bottom:2mm;">Mitarbeiter der apoBank:</div>
+    <div class="split4">
+      <div><div class="fieldline"><span class="rm-empty"></span></div><div class="tinylabel">Nachname, Name</div></div>
+      <div><div class="fieldline"></div><div class="tinylabel">Personalnummer</div></div>
+      <div><div class="fieldline">Hannover</div><div class="tinylabel">Ort</div></div>
+      <div><div class="fieldline"></div><div class="tinylabel">Filial-Nr.</div></div>
+    </div>
+    <div style="margin:2mm 0 1mm;">Finanzierungsspezialist:</div>
+    <div style="display:grid;grid-template-columns:1.25fr .6fr 1fr;gap:2mm;">
+      <div><div class="fieldline"><span class="rm-empty"></span></div><div class="tinylabel">Nachname, Name</div></div>
+      <div><div class="fieldline">218</div><div class="tinylabel">Filiale</div></div>
+      <div><div class="fieldline"></div><div class="tinylabel">Rufnummer</div></div>
+    </div>
+
+    <div class="section-title">3. Gesprächsanlass</div>
+    <div class="options-row">
+      <span><span class="print-box" id="poReasonApo"></span>apoPur-Grundsatzgespräch</span>
+      <span><span class="print-box" id="poReasonInvest"></span>Anlagegespräch</span>
+      <span><span class="print-box" id="poReasonPension"></span>Vorsorgegespräch</span>
+    </div>
+    <div><span class="print-box" id="poReasonOther"></span>Sonstiges: <span class="longline"></span></div>
+
+    <div class="section-title">4. Der Kunde hat Interesse an einer Kapitalanlageimmobilie und hat im Rahmen dessen folgende Anlageziele.</div>
+    <div class="options-row">
+      <span><span class="print-box" id="poGoalInvestment"></span>Geldanlage</span>
+      <span><span class="print-box" id="poGoalWealth"></span>Vermögensaufbau</span>
+      <span><span class="print-box" id="poGoalRetirement"></span>Altersvorsorge</span>
+      <span><span class="print-box" id="poGoalTax"></span>Steuervorteile</span>
+    </div>
+
+    <div class="section-title">5. Der Kunde hat einen Investitionshorizont von</div>
+    <div class="options-row">
+        <span><span class="print-box" id="phUnder5"></span>unter 5 Jahre</span>
+        <span><span class="print-box" id="ph5to10"></span>5 bis 10 Jahre</span>
+        <span><span class="print-box" id="ph10to15"></span>10 bis 15 Jahre</span>
+        <span><span class="print-box" id="ph15plus"></span>15 Jahre oder länger</span>
+        <span><span class="print-box" id="phOpen"></span>noch offen</span>
+      </div>
+
+    <div class="section-title">6. Der Kunde plant für einen etwaigen Erwerb einer Kapitalanlage folgende Mittel.</div>
+    <div class="means">
+      <span><span class="print-box"></span>Eigenkapital, i.H.v.</span><span class="fieldline" id="poEquity"></span>
+      <span><span class="print-box"></span>Finanzierung, i.H.v.</span><span class="fieldline" id="poFinancing"></span>
+    </div>
+
+    <div class="section-title">7. Bemerkungen</div>
+    <div class="remarks" id="poNotes"></div>
+
+    <div class="section-title">8. Einverständniserklärung</div>
+    <div class="consent">Die apoBank arbeitet mit sog. Immobilienspezialisten zur vertieften Aufklärung über Kapitalanlageimmobilien und deren Vermittlung zusammen. Der o.g. Kunde erklärt sich damit einverstanden, dass dieser Bogen zwecks Kontaktaufnahme zur Vermittlung einer Kapitalanlageimmobilie an einen an die mana Projektmanagement GmbH angebundenen Vermittler weitergeleitet wird. Der Kunde wird darauf hingewiesen, dass die von ihm aufgenommenen Daten und Informationen gespeichert und den genannten Partnerunternehmen der apoBank zur Verfügung gestellt werden, soweit dies zur Herbeiführung des Kapitalanlagezwecks erforderlich ist. Eine darüberhinausgehende Weitergabe der Daten des Kunden oder eine Nutzung für vertragsfremde Zwecke ist weder der apoBank noch den Partnerunternehmen gestattet. Der Kunde erklärt sich mit der Speicherung und Weitergabe seiner Daten einverstanden.</div>
+
+    <div class="signatures">
+      <div><div class="sigline" id="poCustomerPlaceDate"></div><div class="sigcaption">Ort, Datum</div></div>
+      <div><div class="sigline"><img id="poCustomerSignature" alt="Unterschrift Kunde"></div><div class="sigcaption">Unterschrift Kunde</div></div>
+    </div>
+    <div class="signatures" style="margin-top:7mm;">
+      <div><div class="sigline"></div><div class="sigcaption">Ort, Datum</div></div>
+      <div><div class="sigline"></div><div class="sigcaption">Unterschrift Mitarbeiter der apoBank</div></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
