@@ -511,6 +511,28 @@ button:disabled{
   line-height:1.4;
 }
 
+
+.booking-panel{display:none;margin-top:18px;padding:16px 18px;border-radius:6px;background:#f4f8f3;border-left:5px solid var(--green);}
+.booking-panel.soft{background:#f7f7f7;border-left-color:#7f8c8d;}
+.booking-panel h3{margin:0 0 6px;color:var(--navy);font-size:17px;}
+.booking-panel p{margin:0 0 12px;font-size:13px;line-height:1.4;}
+.booking-btn{display:inline-block;padding:11px 15px;border-radius:4px;text-decoration:none;font-weight:700;background:var(--green);color:#fff !important;}
+.booking-panel.soft .booking-btn{background:#fff;color:var(--navy) !important;border:1px solid var(--navy);}
+.booking-wait{display:none;margin-top:12px;padding:10px 12px;background:#fff4e5;border-left:4px solid #c58a25;font-size:12.5px;}
+
+
+.booking-panel{
+  margin-top:14px;
+}
+.booking-panel .booking-btn{
+  width:100%;
+  box-sizing:border-box;
+  text-align:center;
+}
+.booking-wait{
+  margin-top:14px;
+}
+
 </style>
 </head>
 <body>
@@ -682,7 +704,10 @@ button:disabled{
       Wenn Sie Ihre persönliche Situation durch einen MANA Immobilien-Spezialisten analysieren lassen möchten, ist es zwingend erforderlich, den Leadbogen vollständig auszufüllen, die Einverständniserklärung zu bestätigen und digital zu unterschreiben. Ohne diese Leadfreigabe kann Ihr Relationship Manager den Beratungsauftrag nicht an MANA weitergeben.
     </div>
 
-    <div class="return-section" id="returnSection">
+    
+    
+
+<div class="return-section" id="returnSection">
       <h2 style="font-size:20px;margin-bottom:6px;">Zusammenfassung für Ihren Relationship Manager</h2>
       <p style="margin-top:0;">Diese Übersicht enthält Ihr Ergebnis und alle von Ihnen gemachten Angaben. Sie können sie ausdrucken bzw. als PDF speichern und zusammen mit dem unterschriebenen Leadbogen an Ihren Relationship Manager zurücksenden.</p>
 
@@ -845,15 +870,23 @@ button:disabled{
           <div class="return-actions">
             <button type="button" class="secondary" id="emailButton" onclick="prepareEmail()" disabled>2. E-Mail vorbereiten</button>
           </div>
+<div class="booking-wait" id="bookingWait">
+      <strong>Terminbuchung:</strong> Sobald Ihr Leadbogen vollständig ausgefüllt und digital unterschrieben ist, können Sie bei geeignetem Ergebnis direkt einen Termin für Ihre persönliche Immobilien-Investmentanalyse buchen.
+    </div>
+    <div class="booking-panel" id="bookingPanel">
+      <h3 id="bookingTitle">Persönliches Analysegespräch buchen</h3>
+      <p id="bookingText">Wählen Sie direkt einen passenden Termin mit Sven Pietsch, Immobilienexperte der MANA / apoBank.</p>
+      <a class="booking-btn" id="bookingButton" href="https://outlook.office.com/bookwithme/user/5f010516129f4338b31dd67e2eca2060@mana.ag?anonymous&ep=pcard" target="_blank" rel="noopener noreferrer">
+        3. Persönliches Analysegespräch mit Sven Pietsch buchen
+      </a>
+    </div>
         </div>
       </div>
     </div>
 
     <div class="small">
       Die Auswertung stellt keine Anlage-, Steuer-, Rechts- oder Finanzierungsberatung dar. Eine konkrete Beurteilung erfolgt erst im persönlichen Beratungsgespräch.
-<div class="small">
-      Die Auswertung stellt keine Anlage-, Steuer-, Rechts- oder Finanzierungsberatung dar. Eine konkrete Beurteilung erfolgt erst im persönlichen Beratungsgespräch.
-    </div>
+</div>
   </section>
 </div>
 
@@ -1100,6 +1133,7 @@ function buildAnswerSummary(potentialLabel, timingLabel){
     tr.appendChild(th); tr.appendChild(td); pt.appendChild(tr);
   });
   document.getElementById('returnSection').style.display='block';
+  updateBookingOffer();
   requestAnimationFrame(()=>{
     if(!signatureHasInk) setupSignatureCanvas();
   });
@@ -1293,6 +1327,7 @@ function finishSignature(e){
   activePointerId = null;
   syncLeadPrint();
   refreshLeadStatusLive();
+  updateBookingOffer();
 }
 signaturePad.addEventListener('pointerup', finishSignature);
 signaturePad.addEventListener('pointercancel', finishSignature);
@@ -1306,6 +1341,7 @@ function clearSignature(){
   signatureHasInk = false;
   syncLeadPrint();
   refreshLeadStatusLive();
+  updateBookingOffer();
 }
 
 
@@ -1464,6 +1500,80 @@ function refreshLeadStatusLive(){
     status.className='lead-status ok';
     status.textContent='Leadfreigabe vollständig. Sie können jetzt das unterschriebene PDF erstellen.';
   }
+  updateBookingOffer();
+}
+
+
+function getResultCodesForBooking(){
+  const potentialText=(document.getElementById('potentialBadge')?.textContent || '').trim();
+  const timingText=(document.getElementById('timingBadge')?.textContent || '').trim();
+
+  let potential='';
+  if(/^A\b/i.test(potentialText) || /Hohes Potenzial/i.test(potentialText)) potential='A';
+  else if(/^B\b/i.test(potentialText) || /Interessantes Potenzial/i.test(potentialText)) potential='B';
+  else if(/^C\b/i.test(potentialText) || /Perspektiv/i.test(potentialText)) potential='C';
+
+  let timing='';
+  if(/^1\b/.test(timingText) || /zeitnah/i.test(timingText)) timing='1';
+  else if(/^2\b/.test(timingText) || /kommenden Monaten/i.test(timingText)) timing='2';
+  else if(/^3\b/.test(timingText) || /Orientierung/i.test(timingText)) timing='3';
+
+  return {potential, timing};
+}
+
+function bookingEligibility(){
+  const {potential, timing}=getResultCodesForBooking();
+  const code=potential+timing;
+  if(['A1','A2','B1','B2'].includes(code)) return 'strong';
+  if(code==='A3') return 'soft';
+  return 'none';
+}
+
+function leadIsReadyForBooking(){
+  if(!customerWantsConsulting()) return false;
+
+  const missing=[];
+  requiredLeadFields().forEach(f=>{
+    const el=document.getElementById(f.id);
+    if(!el || !el.value.trim()) missing.push(f.label);
+  });
+  if(!document.querySelector('input[name="leadReason"]:checked')) missing.push('Gesprächsanlass');
+  if(!document.querySelector('input[name="leadHorizon"]:checked')) missing.push('Investitionshorizont');
+  if(!document.getElementById('leadEquity').value.trim()) missing.push('Eigenkapital');
+  if(!document.getElementById('leadConsent').checked) missing.push('Einverständniserklärung');
+  if(!signatureHasInk) missing.push('Kundensignatur');
+
+  const plausibility=(typeof validatePlausibility==='function') ? validatePlausibility(false) : [];
+  return missing.length===0 && plausibility.length===0;
+}
+
+function updateBookingOffer(){
+  const panel=document.getElementById('bookingPanel');
+  const wait=document.getElementById('bookingWait');
+  if(!panel || !wait) return;
+
+  panel.style.display='none';
+  wait.style.display='none';
+  panel.classList.remove('soft');
+
+  const eligibility=bookingEligibility();
+  if(eligibility==='none') return;
+
+  if(!leadIsReadyForBooking()){
+    wait.style.display='block';
+    return;
+  }
+
+  if(eligibility==='soft'){
+    panel.classList.add('soft');
+    document.getElementById('bookingTitle').textContent='Optionales persönliches Analysegespräch';
+    document.getElementById('bookingText').textContent='Wenn Sie Ihre Möglichkeiten bereits jetzt persönlich einordnen möchten, können Sie direkt einen passenden Termin mit Sven Pietsch, Immobilienexperte der MANA / apoBank, auswählen.';
+  } else {
+    document.getElementById('bookingTitle').textContent='Ihre persönliche Immobilien-Investmentanalyse';
+    document.getElementById('bookingText').textContent='Auf Basis Ihrer Angaben ist eine persönliche Analyse sinnvoll. Wählen Sie direkt einen passenden Termin mit Sven Pietsch, Immobilienexperte der MANA / apoBank.';
+  }
+
+  panel.style.display='block';
 }
 
 function customerWantsConsulting(){
